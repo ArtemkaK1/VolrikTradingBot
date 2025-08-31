@@ -1,13 +1,11 @@
-import os, textwrap
+import asyncio
 from telegram import Bot
 from telegram.constants import ParseMode
 
 from news.fetch_today_events import fetch_today_events
 from news.build_message import build_message
-
-# --- CONFIG ---
-BOT_TOKEN = os.environ["BOT_TOKEN"]
-CHAT_ID = os.environ["CHAT_ID"]
+from env_manager.env_manager import BOT_TOKEN, CHAT_ID
+from trading.bingx_client import BingXClient
 
 
 def send_today_digest():
@@ -16,10 +14,11 @@ def send_today_digest():
     bot = Bot(BOT_TOKEN)
     if isinstance(msgs, list):
         for m in msgs:
-            bot.send_message(CHAT_ID, m, parse_mode=ParseMode.MARKDOWN)
+            asyncio.run(bot.send_message(CHAT_ID, m, parse_mode=ParseMode.MARKDOWN))
     else:
-        bot.send_message(CHAT_ID, msgs, parse_mode=ParseMode.MARKDOWN)
+        asyncio.run(bot.send_message(CHAT_ID, msgs, parse_mode=ParseMode.MARKDOWN))
 
 
 if __name__ == "__main__":
-    send_today_digest()
+    client = BingXClient(is_demo=False)
+    print(client.get_account_balance())
